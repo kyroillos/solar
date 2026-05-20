@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>نظام التسعير الشمسي ☀️</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #FFD700;
+    --orange: #FF8C00;
+    --green: #4CAF50;
+    --green-light: #81C784;
+    --bg: #0d0d1a;
+    --bg2: #1A1A2E;
+    --card: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.1);
+    --gold-border: rgba(255,215,0,0.2);
+    --text: #eee;
+    --muted: #888;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: radial-gradient(ellipse at top, var(--bg2) 0%, var(--bg) 100%);
+    min-height: 100vh;
+    color: var(--text);
+    direction: rtl;
+  }
+
+  /* ── TOPBAR ── */
+  #topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--gold-border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 20;
+  }
+  .logo { display:flex; align-items:center; gap:10; padding:14px 0; }
+  .logo-icon { font-size:28px; }
+  .logo-title { color:var(--gold); font-weight:900; font-size:16px; line-height:1.2; }
+  .logo-sub { color:var(--muted); font-size:11px; }
+  .tabs { margin-right:auto; display:flex; gap:4; }
+  .tab-btn {
+    padding:8px 20px; border-radius:8px; border:none; cursor:pointer;
+    font-family:'Cairo',sans-serif; font-size:14px; transition:all .2s;
+    background:transparent; color:var(--muted); font-weight:400;
+  }
+  .tab-btn.active {
+    background:linear-gradient(135deg,var(--orange),var(--gold));
+    color:#1A1A2E; font-weight:700;
+  }
+
+  /* ── SHEET CONFIG BANNER ── */
+  #config-banner {
+    background: linear-gradient(135deg, rgba(255,140,0,0.15), rgba(255,215,0,0.05));
+    border-bottom: 1px solid rgba(255,140,0,0.3);
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 12; flex-wrap: wrap;
+  }
+  #config-banner label { color:var(--muted); font-size:13px; }
+  #sheet-url-input {
+    flex:1; min-width:300px;
+    background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
+    border-radius:8px; color:var(--text); padding:7px 14px;
+    font-family:'Cairo',sans-serif; font-size:13px; outline:none;
+  }
+  #sheet-url-input:focus { border-color:var(--gold); }
+  .connect-btn {
+    background:linear-gradient(135deg,var(--orange),var(--gold));
+    border:none; border-radius:8px; color:#1A1A2E; font-weight:700;
+    padding:8px 20px; cursor:pointer; font-family:'Cairo',sans-serif; font-size:13px;
+    white-space:nowrap;
+  }
+  .connect-btn:hover { opacity:.9; }
+  #conn-status {
+    font-size:12px; padding:4px 12px; border-radius:20px; font-weight:600;
+    background:rgba(255,255,255,0.08); color:var(--muted);
+  }
+  #conn-status.ok { background:rgba(76,175,80,0.2); color:var(--green-light); }
+  #conn-status.err { background:rgba(255,60,60,0.2); color:#ff6b6b; }
+  #conn-status.loading { background:rgba(255,215,0,0.15); color:var(--gold); }
+
+  /* ── MAIN ── */
+  #main { max-width:960px; margin:0 auto; padding:28px 20px; }
+
+  /* ── CARDS ── */
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:20px; margin-bottom:20px;
+  }
+  .card-title {
+    color:var(--gold); font-size:16px; font-weight:700;
+    margin-bottom:16px;
+  }
+
+  /* ── INPUTS ── */
+  .inp {
+    background:rgba(255,255,255,0.07); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); padding:7px 12px;
+    font-family:'Cairo',sans-serif; font-size:13px; outline:none;
+  }
+  .inp:focus { border-color:var(--gold); }
+
+  /* ── CLIENT GRID ── */
+  .client-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field-group { display:flex; flex-direction:column; gap:5px; }
+  .field-group label { color:var(--muted); font-size:12px; }
+  .field-group .inp { width:100%; }
+
+  /* ── CAT STEPS ── */
+  .steps-bar { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:20px; }
+  .step-btn {
+    padding:8px 16px; border-radius:24px; border:none; cursor:pointer;
+    font-family:'Cairo',sans-serif; font-size:13px; white-space:nowrap;
+    background:rgba(255,255,255,0.08); color:#ccc; font-weight:400;
+    transition:all .2s; position:relative;
+  }
+  .step-btn.active {
+    background:linear-gradient(135deg,var(--orange),var(--gold));
+    color:#1A1A2E; font-weight:700;
+  }
+  .step-badge {
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--green); border-radius:50%; width:18px; height:18px;
+    font-size:11px; margin-right:6px; color:#fff;
+  }
+
+  /* ── ITEMS GRID ── */
+  .items-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+  .item-card {
+    border:2px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px;
+    cursor:pointer; background:rgba(255,255,255,0.03); transition:all .2s;
+    position:relative;
+  }
+  .item-card:hover { border-color:rgba(255,215,0,0.4); }
+  .item-card.selected { border-color:var(--gold); background:rgba(255,215,0,0.08); }
+  .item-card .check {
+    position:absolute; top:10px; left:10px;
+    background:var(--gold); border-radius:50%; width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center;
+    color:#1A1A2E; font-size:12px; font-weight:900;
+  }
+  .item-name { color:var(--text); font-weight:600; font-size:14px; margin-bottom:6px; }
+  .item-spec { color:var(--muted); font-size:12px; margin-bottom:8px; }
+  .item-price { color:var(--green); font-weight:700; font-size:16px; }
+  .item-unit { color:#777; font-size:11px; }
+  .qty-row { margin-top:10px; display:flex; align-items:center; gap:8px; }
+  .qty-row label { color:var(--muted); font-size:12px; }
+  .qty-inp { width:60px; padding:4px 8px; }
+  .qty-total { color:var(--gold); font-size:13px; font-weight:600; }
+
+  /* ── NAV BTNS ── */
+  .nav-row { display:flex; justify-content:space-between; margin-top:20px; }
+  .nav-btn {
+    background:rgba(255,255,255,0.08); border:1px solid var(--border);
+    border-radius:10px; color:var(--text); padding:10px 24px;
+    cursor:pointer; font-family:'Cairo',sans-serif; font-size:14px; font-weight:600;
+  }
+  .nav-btn:disabled { opacity:.3; cursor:default; }
+  .nav-btn.primary { background:linear-gradient(135deg,var(--orange),var(--gold)); color:#1A1A2E; border:none; }
+  .nav-btn.success { background:linear-gradient(135deg,var(--green),var(--green-light)); color:#fff; border:none; }
+
+  /* ── LIVE BAR ── */
+  #live-bar {
+    background:linear-gradient(135deg,rgba(255,140,0,.2),rgba(255,215,0,.1));
+    border:1px solid rgba(255,215,0,.3); border-radius:12px;
+    padding:14px 20px; display:flex; flex-wrap:wrap; gap:20; align-items:center;
+    margin-bottom:16px;
+  }
+  .live-item .lbl { color:var(--muted); font-size:12px; }
+  .live-item .val { font-weight:700; font-size:18px; }
+  .live-item .val.gold { color:var(--gold); font-size:22px; }
+  .live-item .val.green { color:var(--green); }
+  .live-item .val.green-light { color:var(--green-light); }
+
+  /* ── DISCOUNT ── */
+  .discount-row { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .discount-row label { color:var(--muted); font-size:14px; }
+
+  /* ── SUMMARY ── */
+  #summary-wrap { display:none; }
+  .summary-header {
+    background:linear-gradient(135deg,var(--bg2),#16213E);
+    border-radius:16px; padding:28px; text-align:center; margin-bottom:20px;
+    border:1px solid var(--gold-border);
+  }
+  .summary-header .sun { font-size:36px; margin-bottom:6px; }
+  .summary-header h2 { color:var(--gold); font-size:24px; }
+  .summary-header p { color:var(--muted); margin-top:6px; font-size:13px; }
+  .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .info-box {
+    background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    border-radius:10px; padding:10px 16px;
+  }
+  .info-box .lbl { color:var(--muted); font-size:11px; }
+  .info-box .val { color:var(--text); font-weight:600; font-size:14px; }
+  .quote-table { width:100%; border-collapse:collapse; }
+  .quote-table th { padding:10px 14px; color:var(--gold); text-align:right; font-size:13px; background:rgba(255,140,0,.2); }
+  .quote-table td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,.05); font-size:13px; }
+  .totals-section .t-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.07); font-size:14px; color:#ccc; }
+  .totals-section .t-final { font-size:20px; color:var(--gold); font-weight:900; border-bottom:none; padding-top:14px; }
+  .savings-card {
+    background:rgba(76,175,80,.08); border:1px solid rgba(76,175,80,.3);
+    border-radius:16px; padding:20px; margin-top:16px;
+  }
+  .savings-card .s-title { color:var(--green-light); font-size:15px; font-weight:700; margin-bottom:14px; }
+  .sav-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; }
+  .sav-box { background:rgba(255,255,255,.05); border-radius:10px; padding:12px 16px; }
+  .sav-box .lbl { color:var(--muted); font-size:11px; }
+  .sav-box .val { color:var(--green-light); font-weight:700; font-size:16px; }
+  .quote-footer { text-align:center; color:#666; font-size:12px; margin-top:20px; padding:16px 0; border-top:1px solid rgba(255,255,255,.08); }
+
+  /* ── MASTER TABLE ── */
+  .master-section {
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,215,0,.15);
+    border-radius:16px; overflow:hidden; margin-bottom:24px;
+  }
+  .master-sec-header {
+    background:linear-gradient(135deg,rgba(255,140,0,.3),rgba(255,215,0,.1));
+    padding:14px 20px; display:flex; align-items:center; gap:10;
+  }
+  .master-sec-header .icon { font-size:22px; }
+  .master-sec-header .title { color:var(--gold); font-weight:700; font-size:17px; }
+  .master-sec-header .unit-badge {
+    margin-right:auto; background:rgba(255,215,0,.15); color:var(--gold);
+    font-size:12px; padding:2px 10px; border-radius:20px;
+  }
+  .m-table { width:100%; border-collapse:collapse; }
+  .m-table th { padding:10px 16px; color:var(--muted); font-size:12px; text-align:right; font-weight:600; border-bottom:1px solid rgba(255,255,255,.05); background:rgba(0,0,0,.3); }
+  .m-table td { padding:11px 16px; border-bottom:1px solid rgba(255,255,255,.04); }
+  .m-table tr:nth-child(even) td { background:rgba(255,255,255,.02); }
+  .m-table .pname { color:var(--text); font-size:14px; }
+  .m-table .pspec { color:var(--muted); font-size:13px; }
+  .m-table .pprice { color:var(--green); font-weight:700; }
+  .edit-btn {
+    background:rgba(255,215,0,.1); border:1px solid rgba(255,215,0,.3);
+    border-radius:6px; color:var(--gold); padding:4px 12px; cursor:pointer;
+    font-family:'Cairo',sans-serif; font-size:12px;
+  }
+  .edit-btn:hover { background:rgba(255,215,0,.2); }
+  .price-inp {
+    background:rgba(255,215,0,.1); border:1px solid var(--gold);
+    border-radius:6px; color:var(--gold); padding:4px 10px;
+    font-family:'Cairo',sans-serif; font-size:14px; width:110px; text-align:right; outline:none;
+  }
+  .add-row { padding:12px 16px; background:rgba(0,0,0,.2); display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .add-row span { color:#666; font-size:13px; }
+  .add-inp { background:rgba(255,255,255,.07); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:6px 12px; font-family:'Cairo',sans-serif; font-size:13px; outline:none; min-width:160px; }
+  .add-inp:focus { border-color:var(--gold); }
+  .add-btn {
+    background:linear-gradient(135deg,var(--orange),var(--gold)); border:none;
+    border-radius:8px; color:#1A1A2E; font-weight:700; padding:7px 18px;
+    cursor:pointer; font-family:'Cairo',sans-serif; font-size:13px;
+  }
+  .sync-btn {
+    background:linear-gradient(135deg,#1565C0,#42A5F5); border:none;
+    border-radius:8px; color:#fff; font-weight:700; padding:7px 16px;
+    cursor:pointer; font-family:'Cairo',sans-serif; font-size:13px;
+  }
+  .sync-btn:hover { opacity:.9; }
+
+  /* ── LOADING OVERLAY ── */
+  #loading-overlay {
+    display:none; position:fixed; inset:0; background:rgba(13,13,26,.8);
+    backdrop-filter:blur(4px); z-index:9999;
+    align-items:center; justify-content:center; flex-direction:column; gap:16px;
+  }
+  #loading-overlay.show { display:flex; }
+  .spinner {
+    width:48px; height:48px; border:4px solid rgba(255,215,0,.2);
+    border-top-color:var(--gold); border-radius:50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-text { color:var(--gold); font-size:16px; font-weight:600; }
+
+  /* ── TOAST ── */
+  #toast {
+    position:fixed; bottom:24px; right:24px; z-index:9999;
+    background:#1e1e2e; border-radius:12px; padding:14px 20px;
+    border:1px solid var(--gold-border); color:var(--text); font-size:14px;
+    transform:translateY(100px); opacity:0; transition:all .3s;
+    display:flex; align-items:center; gap:10;
+  }
+  #toast.show { transform:translateY(0); opacity:1; }
+  #toast.success { border-color:rgba(76,175,80,.5); }
+  #toast.error { border-color:rgba(255,60,60,.4); }
+
+  /* ── PRINT STYLES ── */
+  @media print {
+    #topbar, #config-banner, .no-print { display:none !important; }
+    body { background:#fff; color:#111; }
+    #summary-wrap { display:block !important; }
+  }
+
+  /* ── INSTRUCTIONS CARD ── */
+  .instructions {
+    background:rgba(255,215,0,.05); border:1px solid rgba(255,215,0,.2);
+    border-radius:12px; padding:16px 20px; margin-bottom:20px;
+  }
+  .instructions h3 { color:var(--gold); font-size:14px; margin-bottom:10px; }
+  .instructions ol { padding-right:20px; }
+  .instructions li { color:#bbb; font-size:13px; line-height:2; }
+  .instructions a { color:var(--gold); text-decoration:none; }
+  .instructions a:hover { text-decoration:underline; }
+  .instructions code {
+    background:rgba(255,255,255,.1); border-radius:4px;
+    padding:2px 6px; font-size:12px; color:#FFD700; font-family:monospace;
+  }
+  .script-box {
+    background:#0a0a14; border:1px solid rgba(255,255,255,.1); border-radius:8px;
+    padding:12px 16px; margin-top:8px; overflow-x:auto;
+    font-family:monospace; font-size:11px; color:#a8ff78; line-height:1.7;
+    max-height:200px; overflow-y:auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text">جاري التحميل...</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><span id="toast-icon">✅</span> <span id="toast-msg"></span></div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="logo">
+    <div class="logo-icon">☀️</div>
+    <div>
+      <div class="logo-title">نظام التسعير الشمسي</div>
+      <div class="logo-sub">Solar Pricing System</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('quote')">💰 عرض السعر</button>
+    <button class="tab-btn" onclick="switchTab('master')">📋 إدارة الأسعار</button>
+    <button class="tab-btn" onclick="switchTab('setup')">⚙️ الإعداد</button>
+  </div>
+</div>
+
+<!-- SHEET CONFIG BANNER -->
+<div id="config-banner">
+  <label>🔗 رابط Google Apps Script API:</label>
+  <input id="sheet-url-input" type="text" placeholder="https://script.google.com/macros/s/XXXXXX/exec" />
+  <button class="connect-btn" onclick="connectSheet()">🔌 اتصل بالشيت</button>
+  <span id="conn-status">غير متصل</span>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- ══ QUOTE TAB ══ -->
+  <div id="tab-quote">
+
+    <!-- Client Info -->
+    <div class="card">
+      <div class="card-title">👤 بيانات العميل</div>
+      <div class="client-grid">
+        <div class="field-group"><label>اسم العميل</label><input class="inp" id="c-name" placeholder="اسم العميل"/></div>
+        <div class="field-group"><label>العنوان</label><input class="inp" id="c-address" placeholder="العنوان"/></div>
+        <div class="field-group"><label>مهندس المبيعات</label><input class="inp" id="c-engineer" placeholder="الاسم"/></div>
+        <div class="field-group"><label>ملاحظات</label><input class="inp" id="c-notes" placeholder="ملاحظات إضافية"/></div>
+      </div>
+    </div>
+
+    <!-- Steps bar -->
+    <div class="steps-bar" id="steps-bar"></div>
+
+    <!-- Items area -->
+    <div class="card" id="items-area">
+      <div class="card-title" id="cat-title">اختر المكونات</div>
+      <div class="items-grid" id="items-grid">
+        <div style="color:var(--muted);font-size:14px;padding:20px;">
+          اتصل بـ Google Sheet أو انتظر تحميل البيانات...
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="nav-btn" id="btn-prev" onclick="prevStep()">← السابق</button>
+        <button class="nav-btn primary" id="btn-next" onclick="nextStep()">التالي ←</button>
+      </div>
+    </div>
+
+    <!-- Live bar -->
+    <div id="live-bar" style="display:none;">
+      <div class="live-item">
+        <div class="lbl">الإجمالي حتى الآن</div>
+        <div class="val gold" id="lb-total">0 ج.م</div>
+      </div>
+      <div class="live-item" id="lb-kw-wrap" style="display:none;">
+        <div class="lbl">قدرة المنظومة</div>
+        <div class="val green" id="lb-kw">0 kW</div>
+      </div>
+      <div class="live-item" id="lb-cpkw-wrap" style="display:none;">
+        <div class="lbl">سعر الكيلو واط الواقف</div>
+        <div class="val green-light" id="lb-cpkw">0 ج.م</div>
+      </div>
+      <div class="live-item" style="margin-right:auto;">
+        <div class="lbl">سعر الكيلو من الشبكة</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+          <input type="number" class="inp" id="grid-price" value="2.5" min="0.1" step="0.1" style="width:80px;padding:4px 8px;"/>
+          <span style="color:var(--muted);font-size:12px;">ج.م/kWh</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discount -->
+    <div class="discount-row">
+      <label>🎁 خصم (ج.م):</label>
+      <input type="number" class="inp" id="discount" value="0" min="0" style="width:130px;" oninput="updateLiveBar()"/>
+      <span id="discount-label" style="color:var(--green);display:none;"></span>
+    </div>
+
+    <!-- Go to summary -->
+    <div style="display:none;" id="summary-btn-wrap">
+      <button class="nav-btn success" onclick="showSummary()" style="width:100%;padding:14px;font-size:16px;">📄 عرض السعر النهائي</button>
+    </div>
+
+  </div><!-- /tab-quote -->
+
+
+  <!-- ══ MASTER TAB ══ -->
+  <div id="tab-master" style="display:none;">
+    <div style="display:flex;gap:10;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+      <h2 style="color:var(--gold);font-size:18px;">📋 إدارة قائمة الأسعار</h2>
+      <button class="sync-btn" onclick="syncFromSheet()" style="margin-right:auto;">🔄 تحديث من الشيت</button>
+      <button class="sync-btn" onclick="pushToSheet()" style="background:linear-gradient(135deg,#2E7D32,#66BB6A);">☁️ رفع إلى الشيت</button>
+    </div>
+    <div id="master-content"></div>
+  </div>
+
+
+  <!-- ══ SETUP TAB ══ -->
+  <div id="tab-setup" style="display:none;">
+    <div class="instructions">
+      <h3>🚀 طريقة الربط بـ Google Sheets (مرة واحدة بس)</h3>
+      <ol>
+        <li>افتح <a href="https://sheets.google.com" target="_blank">Google Sheets</a> وعمل شيت جديد</li>
+        <li>من القائمة: <code>Extensions → Apps Script</code></li>
+        <li>احذف الكود الموجود والصق الكود ده بدله:</li>
+      </ol>
+
+      <div class="script-box" id="apps-script-code">// ═══ SOLAR PRICING - Google Apps Script ═══
+// انسخ الكود ده كله والصقه في Apps Script
+
+const SHEET_NAME = "Catalog";
+
+function doGet(e) {
+  return handleRequest(e);
+}
+
+function doPost(e) {
+  return handleRequest(e);
+}
+
+function handleRequest(e) {
+  const lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+  
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    
+    const action = e.parameter.action || (e.postData ? JSON.parse(e.postData.contents).action : "read");
+    
+    if (action === "read") {
+      if (!sheet) return jsonResponse({ ok: false, error: "Sheet not found" });
+      const data = sheet.getDataRange().getValues();
+      return jsonResponse({ ok: true, data: data });
+    }
+    
+    if (action === "write") {
+      const body = JSON.parse(e.postData.contents);
+      if (!sheet) {
+        sheet = ss.insertSheet(SHEET_NAME);
+      }
+      sheet.clearContents();
+      const rows = body.data;
+      if (rows.length > 0) {
+        sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+      }
+      return jsonResponse({ ok: true, message: "Saved!" });
+    }
+    
+    return jsonResponse({ ok: false, error: "Unknown action" });
+    
+  } catch(err) {
+    return jsonResponse({ ok: false, error: err.toString() });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ═══ إعداد أولي - شغله مرة واحدة ═══
+function setupInitialData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
+  
+  sheet.clearContents();
+  
+  const headers = ["category", "cat_label", "cat_icon", "cat_unit", "id", "name", "price", "watts", "kw", "kwh"];
+  
+  const data = [
+    headers,
+    ["panels","الألواح الشمسية","🌞","لوح","p1","لوح Mono PERC 400W",3500,400,"",""],
+    ["panels","الألواح الشمسية","🌞","لوح","p2","لوح Mono PERC 450W",3900,450,"",""],
+    ["panels","الألواح الشمسية","🌞","لوح","p3","لوح Bifacial 550W",4500,550,"",""],
+    ["panels","الألواح الشمسية","🌞","لوح","p4","لوح Poly 330W",2800,330,"",""],
+    ["panels","الألواح الشمسية","🌞","لوح","p5","لوح Half-Cell 500W",4200,500,"",""],
+    ["inverters","الإنفرتر","⚡","جهاز","i1","Growatt 3kW On-Grid",11000,"",3,""],
+    ["inverters","الإنفرتر","⚡","جهاز","i2","Growatt 5kW On-Grid",15500,"",5,""],
+    ["inverters","الإنفرتر","⚡","جهاز","i3","Solis 6kW Hybrid",23000,"",6,""],
+    ["inverters","الإنفرتر","⚡","جهاز","i4","Solis 8kW Hybrid",28000,"",8,""],
+    ["inverters","الإنفرتر","⚡","جهاز","i5","Huawei 10kW Hybrid",35000,"",10,""],
+    ["inverters","الإنفرتر","⚡","جهاز","i6","Off-Grid 3kW (UPS)",12000,"",3,""],
+    ["batteries","البطاريات","🔋","وحدة","b1","LiFePO4 100Ah 12V",16000,"","",1.2],
+    ["batteries","البطاريات","🔋","وحدة","b2","LiFePO4 200Ah 12V",28000,"","",2.4],
+    ["batteries","البطاريات","🔋","وحدة","b3","AGM 200Ah 12V",5000,"","",2.4],
+    ["batteries","البطاريات","🔋","وحدة","b4","Pylontech 48V 74Ah",32000,"","",3.5],
+    ["batteries","البطاريات","🔋","وحدة","b5","Pylontech 48V 148Ah",58000,"","",7],
+    ["structures","الهياكل","🏗️","طقم","s1","هيكل سطح ثلاجي 4 ألواح",1800,"","",""],
+    ["structures","الهياكل","🏗️","طقم","s2","هيكل سطح ثلاجي 8 ألواح",3200,"","",""],
+    ["structures","الهياكل","🏗️","طقم","s3","هيكل سطح مسطح 4 ألواح",2000,"","",""],
+    ["structures","الهياكل","🏗️","طقم","s4","هيكل أرضي Ballasted 10 ألواح",5000,"","",""],
+    ["cables","الكابلات والملحقات","🔌","متر / قطعة","c1","كابل DC 4mm²",28,"","",""],
+    ["cables","الكابلات والملحقات","🔌","متر / قطعة","c2","كابل DC 6mm²",38,"","",""],
+    ["cables","الكابلات والملحقات","🔌","متر / قطعة","c3","كابل AC NYY 4×10mm²",110,"","",""],
+    ["cables","الكابلات والملحقات","🔌","متر / قطعة","c4","كوبلر MC4 (زوج)",45,"","",""],
+    ["cables","الكابلات والملحقات","🔌","متر / قطعة","c5","صندوق توزيع DC 4 String",1300,"","",""],
+    ["labor","العمالة والخدمات","👷","خدمة","l1","تركيب وتوصيل (per kW)",800,"","",""],
+    ["labor","العمالة والخدمات","👷","خدمة","l2","فحص وتوصيل شبكة",2000,"","",""],
+    ["labor","العمالة والخدمات","👷","خدمة","l3","برمجة الإنفرتر",900,"","",""],
+    ["labor","العمالة والخدمات","👷","خدمة","l4","صيانة سنوية",2500,"","",""],
+  ];
+  
+  sheet.getRange(1, 1, data.length, headers.length).setValues(data);
+  SpreadsheetApp.getUi().alert("✅ تم إعداد البيانات! الآن انشر الـ Script كـ Web App.");
+}      </div>
+      <ol start="4">
+        <li>اضغط <code>Save</code> ثم من القائمة العلوية اضغط <code>Run → setupInitialData</code> (مرة واحدة)</li>
+        <li>بعدين: <code>Deploy → New Deployment</code></li>
+        <li>اختار <code>Web App</code> — في "Who has access" اختار <strong>Anyone</strong></li>
+        <li>اضغط <code>Deploy</code> وهياخد إذن، وافق</li>
+        <li>انسخ الـ URL اللي ظهر (بيبدأ بـ <code>https://script.google.com/macros/s/</code>)</li>
+        <li>الصقه في خانة "رابط Google Apps Script API" فوق واضغط اتصل بالشيت ✅</li>
+      </ol>
+    </div>
+
+    <div style="background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:12px;padding:16px 20px;">
+      <h3 style="color:var(--green-light);font-size:14px;margin-bottom:10px;">💡 بعد الاتصال تقدر تعمل إيه؟</h3>
+      <ul style="padding-right:20px;">
+        <li style="color:#bbb;font-size:13px;line-height:2.2;">تعدل الأسعار مباشرة في Google Sheet — وتضغط "تحديث من الشيت" في التطبيق</li>
+        <li style="color:#bbb;font-size:13px;line-height:2.2;">تضيف منتجات جديدة من التطبيق وترفعها للشيت بضغطة</li>
+        <li style="color:#bbb;font-size:13px;line-height:2.2;">الشيت يبقى المصدر الرئيسي للأسعار ومشترك مع الفريق</li>
+        <li style="color:#bbb;font-size:13px;line-height:2.2;">تطبع عروض الأسعار مباشرة من المتصفح بدون إنترنت</li>
+      </ul>
+    </div>
+  </div><!-- /tab-setup -->
+
+
+  <!-- ══ SUMMARY VIEW ══ -->
+  <div id="summary-wrap">
+    <div class="no-print" style="display:flex;gap:12;margin-bottom:20px;">
+      <button class="nav-btn" onclick="hideSummary()">← رجوع للتعديل</button>
+      <button class="nav-btn primary" onclick="printQuote()">🖨️ طباعة / PDF</button>
+    </div>
+    <div id="summary-content"></div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let catalog = {};       // { catKey: { label, icon, unit, items:[...] } }
+let selections = {};    // { catKey: [ { ...item, qty } ] }
+let catKeys = [];
+let currentStep = 0;
+let sheetUrl = localStorage.getItem("sheetUrl") || "";
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+window.onload = () => {
+  if (sheetUrl) {
+    document.getElementById("sheet-url-input").value = sheetUrl;
+    syncFromSheet(true);
+  } else {
+    loadDefaultCatalog();
+    renderAll();
+  }
+};
+
+function loadDefaultCatalog() {
+  catalog = {
+    panels:     { label:"الألواح الشمسية", icon:"🌞", unit:"لوح",           items:[
+      {id:"p1",name:"لوح Mono PERC 400W",watts:400,price:3500},
+      {id:"p2",name:"لوح Mono PERC 450W",watts:450,price:3900},
+      {id:"p3",name:"لوح Bifacial 550W", watts:550,price:4500},
+      {id:"p4",name:"لوح Poly 330W",     watts:330,price:2800},
+      {id:"p5",name:"لوح Half-Cell 500W",watts:500,price:4200},
+    ]},
+    inverters:  { label:"الإنفرتر",         icon:"⚡", unit:"جهاز",          items:[
+      {id:"i1",name:"Growatt 3kW On-Grid",kw:3, price:11000},
+      {id:"i2",name:"Growatt 5kW On-Grid",kw:5, price:15500},
+      {id:"i3",name:"Solis 6kW Hybrid",  kw:6, price:23000},
+      {id:"i4",name:"Solis 8kW Hybrid",  kw:8, price:28000},
+      {id:"i5",name:"Huawei 10kW Hybrid",kw:10,price:35000},
+      {id:"i6",name:"Off-Grid 3kW (UPS)",kw:3, price:12000},
+    ]},
+    batteries:  { label:"البطاريات",         icon:"🔋", unit:"وحدة",          items:[
+      {id:"b1",name:"LiFePO4 100Ah 12V",  kwh:1.2,price:16000},
+      {id:"b2",name:"LiFePO4 200Ah 12V",  kwh:2.4,price:28000},
+      {id:"b3",name:"AGM 200Ah 12V",      kwh:2.4,price:5000},
+      {id:"b4",name:"Pylontech 48V 74Ah", kwh:3.5,price:32000},
+      {id:"b5",name:"Pylontech 48V 148Ah",kwh:7,  price:58000},
+    ]},
+    structures: { label:"الهياكل",           icon:"🏗️",unit:"طقم",           items:[
+      {id:"s1",name:"هيكل سطح ثلاجي 4 ألواح",      price:1800},
+      {id:"s2",name:"هيكل سطح ثلاجي 8 ألواح",      price:3200},
+      {id:"s3",name:"هيكل سطح مسطح 4 ألواح",       price:2000},
+      {id:"s4",name:"هيكل أرضي Ballasted 10 ألواح",price:5000},
+    ]},
+    cables:     { label:"الكابلات والملحقات",icon:"🔌", unit:"متر / قطعة",   items:[
+      {id:"c1",name:"كابل DC 4mm²",             price:28},
+      {id:"c2",name:"كابل DC 6mm²",              price:38},
+      {id:"c3",name:"كابل AC NYY 4×10mm²",      price:110},
+      {id:"c4",name:"كوبلر MC4 (زوج)",           price:45},
+      {id:"c5",name:"صندوق توزيع DC 4 String",  price:1300},
+    ]},
+    labor:      { label:"العمالة والخدمات",  icon:"👷", unit:"خدمة",          items:[
+      {id:"l1",name:"تركيب وتوصيل (per kW)",price:800},
+      {id:"l2",name:"فحص وتوصيل شبكة",      price:2000},
+      {id:"l3",name:"برمجة الإنفرتر",        price:900},
+      {id:"l4",name:"صيانة سنوية",           price:2500},
+    ]},
+  };
+  catKeys = Object.keys(catalog);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GOOGLE SHEET CONNECTION
+// ═══════════════════════════════════════════════════════════════
+function connectSheet() {
+  const url = document.getElementById("sheet-url-input").value.trim();
+  if (!url) { showToast("أدخل الرابط أولاً", "error"); return; }
+  sheetUrl = url;
+  localStorage.setItem("sheetUrl", url);
+  syncFromSheet(false);
+}
+
+async function syncFromSheet(silent = false) {
+  const url = sheetUrl || document.getElementById("sheet-url-input").value.trim();
+  if (!url) { if (!silent) showToast("أدخل رابط الـ Script أولاً", "error"); return; }
+
+  setStatus("loading", "⏳ جاري الاتصال...");
+  if (!silent) showLoading("جاري قراءة البيانات من Google Sheet...");
+
+  try {
+    const res = await fetch(url + "?action=read");
+    const json = await res.json();
+
+    if (!json.ok) throw new Error(json.error);
+
+    parseCatalogFromSheet(json.data);
+    renderAll();
+    setStatus("ok", "✅ متصل");
+    if (!silent) showToast("تم تحميل البيانات من Google Sheet ✅", "success");
+  } catch(e) {
+    setStatus("err", "❌ خطأ في الاتصال");
+    if (!silent) showToast("فشل الاتصال: " + e.message, "error");
+    loadDefaultCatalog();
+    renderAll();
+  } finally {
+    hideLoading();
+  }
+}
+
+function parseCatalogFromSheet(rows) {
+  if (!rows || rows.length < 2) { loadDefaultCatalog(); return; }
+
+  // rows[0] = headers: category, cat_label, cat_icon, cat_unit, id, name, price, watts, kw, kwh
+  const newCatalog = {};
+  const [catI, catLblI, catIconI, catUnitI, idI, nameI, priceI, wattsI, kwI, kwhI] = [0,1,2,3,4,5,6,7,8,9];
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r[catI]) continue;
+
+    const catKey = r[catI];
+    if (!newCatalog[catKey]) {
+      newCatalog[catKey] = {
+        label: r[catLblI], icon: r[catIconI], unit: r[catUnitI], items: []
+      };
+    }
+    newCatalog[catKey].items.push({
+      id:    r[idI]    || catKey[0] + i,
+      name:  r[nameI]  || "",
+      price: Number(r[priceI]) || 0,
+      watts: r[wattsI] ? Number(r[wattsI]) : undefined,
+      kw:    r[kwI]    ? Number(r[kwI])    : undefined,
+      kwh:   r[kwhI]   ? Number(r[kwhI])   : undefined,
+    });
+  }
+
+  catalog = Object.keys(newCatalog).length > 0 ? newCatalog : (loadDefaultCatalog(), catalog);
+  catKeys = Object.keys(catalog);
+}
+
+async function pushToSheet() {
+  const url = sheetUrl;
+  if (!url) { showToast("اتصل بالشيت أولاً", "error"); return; }
+
+  showLoading("جاري رفع البيانات إلى Google Sheet...");
+
+  try {
+    const rows = [["category","cat_label","cat_icon","cat_unit","id","name","price","watts","kw","kwh"]];
+    for (const [catKey, cat] of Object.entries(catalog)) {
+      for (const item of cat.items) {
+        rows.push([
+          catKey, cat.label, cat.icon, cat.unit,
+          item.id, item.name, item.price,
+          item.watts || "", item.kw || "", item.kwh || ""
+        ]);
+      }
+    }
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({ action: "write", data: rows })
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    showToast("تم رفع البيانات إلى Google Sheet ✅", "success");
+  } catch(e) {
+    showToast("فشل الرفع: " + e.message, "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════════════════════
+function renderAll() {
+  renderStepsBar();
+  renderCurrentStep();
+  renderMaster();
+  updateLiveBar();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STEPS / QUOTE
+// ═══════════════════════════════════════════════════════════════
+function renderStepsBar() {
+  const bar = document.getElementById("steps-bar");
+  bar.innerHTML = catKeys.map((k, i) => {
+    const sel = selections[k]?.length || 0;
+    const badge = sel > 0 ? `<span class="step-badge">${sel}</span>` : "";
+    return `<button class="step-btn ${i===currentStep?'active':''}" onclick="goStep(${i})">
+      ${catalog[k].icon} ${catalog[k].label}${badge}
+    </button>`;
+  }).join("");
+}
+
+function renderCurrentStep() {
+  if (!catKeys.length) return;
+  const catKey = catKeys[currentStep];
+  const cat = catalog[catKey];
+  document.getElementById("cat-title").textContent = `${cat.icon} اختر من ${cat.label}`;
+
+  const grid = document.getElementById("items-grid");
+  grid.innerHTML = cat.items.map(item => {
+    const selItem = (selections[catKey] || []).find(s => s.id === item.id);
+    const sel = !!selItem;
+    const spec = item.watts ? `${item.watts}W` : item.kw ? `${item.kw} kW` : item.kwh ? `${item.kwh} kWh` : "";
+
+    return `
+      <div class="item-card ${sel?'selected':''}" onclick="toggleItem('${catKey}','${item.id}')">
+        ${sel ? `<div class="check">✓</div>` : ""}
+        <div class="item-name">${item.name}</div>
+        <div class="item-spec">${spec}</div>
+        <div class="item-price">${fmt(item.price)}</div>
+        <div class="item-unit">لكل ${cat.unit}</div>
+        ${sel ? `
+          <div class="qty-row" onclick="event.stopPropagation()">
+            <label>الكمية:</label>
+            <input type="number" class="inp qty-inp" min="1"
+              value="${selItem.qty}"
+              onchange="setQty('${catKey}','${item.id}',this.value)"
+            />
+            <span class="qty-total">= ${fmt(item.price * selItem.qty)}</span>
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }).join("");
+
+  // nav buttons
+  document.getElementById("btn-prev").disabled = currentStep === 0;
+  const isLast = currentStep === catKeys.length - 1;
+  document.getElementById("btn-next").textContent = isLast ? "📄 عرض الملخص" : "التالي ←";
+  document.getElementById("btn-next").className = `nav-btn ${isLast ? "success" : "primary"}`;
+  document.getElementById("btn-next").onclick = isLast ? showSummary : nextStep;
+}
+
+function toggleItem(catKey, itemId) {
+  const cat = catalog[catKey];
+  const item = cat.items.find(i => i.id === itemId);
+  if (!item) return;
+
+  const existing = selections[catKey] || [];
+  const found = existing.find(s => s.id === itemId);
+  if (found) {
+    selections[catKey] = existing.filter(s => s.id !== itemId);
+  } else {
+    selections[catKey] = [...existing, { ...item, qty: 1 }];
+  }
+  renderCurrentStep();
+  renderStepsBar();
+  updateLiveBar();
+}
+
+function setQty(catKey, itemId, qty) {
+  selections[catKey] = (selections[catKey] || []).map(s =>
+    s.id === itemId ? { ...s, qty: Math.max(1, Number(qty)) } : s
+  );
+  updateLiveBar();
+}
+
+function goStep(i) { currentStep = i; renderCurrentStep(); renderStepsBar(); }
+function nextStep() { if (currentStep < catKeys.length - 1) { currentStep++; renderCurrentStep(); renderStepsBar(); } }
+function prevStep() { if (currentStep > 0) { currentStep--; renderCurrentStep(); renderStepsBar(); } }
+
+// ═══════════════════════════════════════════════════════════════
+//  LIVE BAR
+// ═══════════════════════════════════════════════════════════════
+function updateLiveBar() {
+  const lineItems = getLineItems();
+  const subtotal = lineItems.reduce((a, b) => a + b.total, 0);
+  const discount = Number(document.getElementById("discount").value) || 0;
+  const finalTotal = subtotal - discount;
+
+  const selPanels = selections.panels || [];
+  const totalW = selPanels.reduce((a, p) => a + (p.watts || 0) * p.qty, 0);
+  const systemKW = totalW / 1000;
+
+  if (subtotal > 0) {
+    document.getElementById("live-bar").style.display = "flex";
+    document.getElementById("lb-total").textContent = fmt(finalTotal);
+
+    if (systemKW > 0) {
+      document.getElementById("lb-kw-wrap").style.display = "block";
+      document.getElementById("lb-cpkw-wrap").style.display = "block";
+      document.getElementById("lb-kw").textContent = systemKW.toFixed(2) + " kW";
+      document.getElementById("lb-cpkw").textContent = fmt(Math.round(finalTotal / systemKW));
+    }
+  }
+
+  const dlbl = document.getElementById("discount-label");
+  if (discount > 0) {
+    dlbl.style.display = "inline";
+    dlbl.innerHTML = `الإجمالي بعد الخصم: <b style="color:var(--gold)">${fmt(finalTotal)}</b>`;
+  } else {
+    dlbl.style.display = "none";
+  }
+}
+
+function getLineItems() {
+  return Object.entries(selections).flatMap(([catKey, items]) =>
+    (items || []).map(s => ({
+      ...s,
+      catLabel: catalog[catKey]?.label || catKey,
+      total: s.price * s.qty
+    }))
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SUMMARY / PRINT
+// ═══════════════════════════════════════════════════════════════
+function showSummary() {
+  const lineItems = getLineItems();
+  const subtotal = lineItems.reduce((a, b) => a + b.total, 0);
+  const discount = Number(document.getElementById("discount").value) || 0;
+  const finalTotal = subtotal - discount;
+  const gridPrice = Number(document.getElementById("grid-price").value) || 2.5;
+
+  const selPanels = selections.panels || [];
+  const totalW = selPanels.reduce((a, p) => a + (p.watts || 0) * p.qty, 0);
+  const systemKW = totalW / 1000;
+  const monthlyProd = systemKW * 120;
+  const monthlySave = monthlyProd * gridPrice;
+  const payback = monthlySave > 0 ? (finalTotal / (monthlySave * 12)).toFixed(1) : null;
+
+  const today = new Date().toLocaleDateString("ar-EG");
+  const quoteNo = "SOL-" + Date.now().toString().slice(-6);
+
+  const clientName    = document.getElementById("c-name").value || "—";
+  const clientAddress = document.getElementById("c-address").value || "—";
+  const clientEng     = document.getElementById("c-engineer").value || "—";
+  const clientNotes   = document.getElementById("c-notes").value || "—";
+
+  document.getElementById("summary-content").innerHTML = `
+    <div class="summary-header">
+      <div class="sun">☀️</div>
+      <h2>عرض سعر منظومة طاقة شمسية</h2>
+      <p>رقم العرض: ${quoteNo} | التاريخ: ${today}</p>
+    </div>
+
+    <div class="info-grid">
+      ${[["اسم العميل",clientName],["العنوان",clientAddress],["مهندس المبيعات",clientEng],["ملاحظات",clientNotes]].map(([l,v])=>`
+        <div class="info-box"><div class="lbl">${l}</div><div class="val">${v}</div></div>
+      `).join("")}
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 تفاصيل البنود</div>
+      <table class="quote-table">
+        <thead><tr>
+          <th>القسم</th><th>الصنف</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th>
+        </tr></thead>
+        <tbody>
+          ${lineItems.map(it=>`
+            <tr>
+              <td style="color:var(--muted);font-size:12px">${it.catLabel}</td>
+              <td style="color:var(--text)">${it.name}</td>
+              <td style="color:var(--text)">${it.qty}</td>
+              <td style="color:var(--muted)">${fmt(it.price)}</td>
+              <td style="color:var(--green);font-weight:700">${fmt(it.total)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card totals-section" style="margin-top:16px">
+      <div class="t-row"><span>إجمالي المنظومة</span><span style="font-weight:600">${fmt(subtotal)}</span></div>
+      ${discount > 0 ? `<div class="t-row"><span>الخصم</span><span style="font-weight:600;color:#ff6b6b">- ${fmt(discount)}</span></div>` : ""}
+      ${systemKW > 0 ? `<div class="t-row"><span>سعر الكيلو واط الواقف (${systemKW.toFixed(2)} kW)</span><span style="font-weight:600">${fmt(Math.round(finalTotal / systemKW))}</span></div>` : ""}
+      <div class="t-row t-final"><span>✅ الإجمالي النهائي</span><span>${fmt(finalTotal)}</span></div>
+    </div>
+
+    ${systemKW > 0 ? `
+    <div class="savings-card">
+      <div class="s-title">📈 تحليل العائد والتوفير</div>
+      <div class="sav-grid">
+        ${[
+          ["قدرة المنظومة", systemKW.toFixed(2) + " kW"],
+          ["الإنتاج الشهري المتوقع", Math.round(monthlyProd) + " kWh"],
+          ["التوفير الشهري المتوقع", fmt(Math.round(monthlySave))],
+          ["فترة الاسترداد", payback ? payback + " سنة" : "—"],
+          ["CO₂ توفير سنوي", (systemKW * 1440 * 0.0005).toFixed(2) + " طن"],
+        ].map(([l,v])=>`
+          <div class="sav-box"><div class="lbl">${l}</div><div class="val">${v}</div></div>
+        `).join("")}
+      </div>
+    </div>
+    ` : ""}
+
+    <div class="quote-footer">
+      ⚠️ هذا العرض ساري لمدة 14 يوماً • الأسعار شاملة التركيب والتوصيل • ضمان الإنفرتر 5 سنوات • ضمان الألواح 10 سنوات
+    </div>
+  `;
+
+  document.getElementById("tab-quote").style.display = "none";
+  document.getElementById("summary-wrap").style.display = "block";
+  window.scrollTo(0, 0);
+}
+
+function hideSummary() {
+  document.getElementById("summary-wrap").style.display = "none";
+  document.getElementById("tab-quote").style.display = "block";
+}
+
+function printQuote() {
+  const content = document.getElementById("summary-content").innerHTML;
+  const win = window.open("", "_blank");
+  win.document.write(`
+    <html dir="rtl">
+    <head>
+      <meta charset="utf-8"/>
+      <title>عرض سعر شمسي</title>
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+      <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Cairo',sans-serif;background:#fff;color:#111;direction:rtl;padding:30px}
+        .summary-header{background:linear-gradient(135deg,#1A1A2E,#16213E);color:#FFD700;padding:28px;border-radius:12px;text-align:center;margin-bottom:20px}
+        .summary-header h2{font-size:22px}.summary-header p{color:#aaa;font-size:12px;margin-top:6px}
+        .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+        .info-box{background:#f5f5f5;border-radius:8px;padding:10px 14px}
+        .info-box .lbl{font-size:11px;color:#999}.info-box .val{font-size:13px;font-weight:700}
+        .card{border:1px solid #eee;border-radius:12px;padding:16px;margin-bottom:14px}
+        .card-title{color:#FF8C00;font-size:14px;font-weight:700;margin-bottom:12px}
+        .quote-table{width:100%;border-collapse:collapse}
+        .quote-table th{background:#FF8C00;color:#fff;padding:8px 12px;text-align:right;font-size:12px}
+        .quote-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:12px}
+        .totals-section .t-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}
+        .totals-section .t-final{font-size:18px;color:#FF8C00;font-weight:900;border-bottom:none;padding-top:10px}
+        .savings-card{background:#f0faf0;border:1px solid #c8e6c9;border-radius:12px;padding:16px;margin-top:14px}
+        .s-title{color:#2E7D32;font-size:13px;font-weight:700;margin-bottom:10px}
+        .sav-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+        .sav-box{background:#fff;border-radius:8px;padding:8px 12px}
+        .sav-box .lbl{font-size:10px;color:#999}.sav-box .val{font-size:14px;font-weight:700;color:#2E7D32}
+        .quote-footer{text-align:center;font-size:11px;color:#999;margin-top:20px;border-top:1px solid #eee;padding-top:14px}
+      </style>
+    </head>
+    <body>${content}</body></html>
+  `);
+  win.document.close();
+  setTimeout(() => win.print(), 600);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MASTER
+// ═══════════════════════════════════════════════════════════════
+function renderMaster() {
+  const el = document.getElementById("master-content");
+  el.innerHTML = Object.entries(catalog).map(([catKey, cat]) => `
+    <div class="master-section">
+      <div class="master-sec-header">
+        <span class="icon">${cat.icon}</span>
+        <span class="title">${cat.label}</span>
+        <span class="unit-badge">${cat.unit}</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="m-table">
+          <thead><tr>
+            <th>المنتج</th><th>المواصفة</th><th>السعر (ج.م)</th><th></th>
+          </tr></thead>
+          <tbody>
+            ${cat.items.map((item, idx) => {
+              const spec = item.watts ? item.watts+"W" : item.kw ? item.kw+" kW" : item.kwh ? item.kwh+" kWh" : "—";
+              return `
+              <tr>
+                <td class="pname">${item.name}</td>
+                <td class="pspec">${spec}</td>
+                <td><span class="pprice" id="price-${item.id}">${fmtN(item.price)}</span></td>
+                <td>
+                  <button class="edit-btn" onclick="editPrice('${catKey}','${item.id}')">✏️ تعديل</button>
+                </td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="add-row">
+        <span>+ إضافة منتج:</span>
+        <input class="add-inp" id="new-name-${catKey}" placeholder="اسم المنتج"/>
+        <input class="add-inp" id="new-price-${catKey}" type="number" placeholder="السعر (ج.م)" style="width:130px"/>
+        <button class="add-btn" onclick="addItem('${catKey}')">إضافة ✓</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function editPrice(catKey, itemId) {
+  const item = catalog[catKey].items.find(i => i.id === itemId);
+  const cell = document.getElementById("price-" + itemId);
+  cell.outerHTML = `<input class="price-inp" id="price-inp-${itemId}"
+    value="${item.price}" type="number"
+    onblur="savePrice('${catKey}','${itemId}',this.value)"
+    onkeydown="if(event.key==='Enter')savePrice('${catKey}','${itemId}',this.value)"
+  />`;
+  document.getElementById("price-inp-" + itemId)?.focus();
+}
+
+function savePrice(catKey, itemId, newPrice) {
+  catalog[catKey].items = catalog[catKey].items.map(i =>
+    i.id === itemId ? { ...i, price: Number(newPrice) } : i
+  );
+  renderMaster();
+  renderCurrentStep();
+  updateLiveBar();
+}
+
+function addItem(catKey) {
+  const nameEl  = document.getElementById("new-name-"  + catKey);
+  const priceEl = document.getElementById("new-price-" + catKey);
+  if (!nameEl.value || !priceEl.value) { showToast("أدخل الاسم والسعر", "error"); return; }
+
+  const id = catKey[0] + Date.now();
+  catalog[catKey].items.push({ id, name: nameEl.value, price: Number(priceEl.value) });
+  nameEl.value = ""; priceEl.value = "";
+  renderMaster();
+  renderCurrentStep();
+  showToast("تمت الإضافة ✅", "success");
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  ["quote","master","setup"].forEach(t => {
+    document.getElementById("tab-" + t).style.display = t === tab ? "block" : "none";
+  });
+  document.querySelectorAll(".tab-btn").forEach((btn, i) => {
+    btn.classList.toggle("active", ["quote","master","setup"][i] === tab);
+  });
+  document.getElementById("summary-wrap").style.display = "none";
+  if (tab === "master") renderMaster();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════
+function fmt(n)  { return (n || 0).toLocaleString("ar-EG") + " ج.م"; }
+function fmtN(n) { return (n || 0).toLocaleString("ar-EG"); }
+
+function setStatus(type, text) {
+  const el = document.getElementById("conn-status");
+  el.textContent = text;
+  el.className = "conn-status " + (type === "ok" ? "ok" : type === "err" ? "err" : type === "loading" ? "loading" : "");
+}
+
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  document.getElementById("toast-msg").textContent = msg;
+  document.getElementById("toast-icon").textContent = type === "success" ? "✅" : "❌";
+  t.className = "show " + type;
+  setTimeout(() => t.className = "", 3000);
+}
+
+function showLoading(msg = "جاري التحميل...") {
+  document.querySelector(".loading-text").textContent = msg;
+  document.getElementById("loading-overlay").classList.add("show");
+}
+function hideLoading() {
+  document.getElementById("loading-overlay").classList.remove("show");
+}
+</script>
+</body>
+</html>
